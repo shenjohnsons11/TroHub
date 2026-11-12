@@ -9,6 +9,36 @@ const Invoice = require('../models/Invoice');
 const RepairRequest = require('../models/RepairRequest');
 const Transaction = require('../models/Transaction');
 
+// BẢO VỆ BẢO MẬT: Chặn việc xóa và nạp lại dữ liệu trái phép
+router.use((req, res, next) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const seedSecret = process.env.SEED_SECRET;
+  const clientSecret = req.headers['x-seed-secret'] || req.query.secret;
+
+  // Trong môi trường Production, bắt buộc phải có SEED_SECRET khớp
+  if (isProduction) {
+    if (!seedSecret || clientSecret !== seedSecret) {
+      return res.status(403).json({
+        success: false,
+        message: 'Endpoint /api/seed bị vô hiệu hóa trong môi trường Production để bảo vệ cơ sở dữ liệu!'
+      });
+    }
+  }
+
+  // Đối với route xóa toàn bộ database (/), yêu cầu xác nhận rõ ràng
+  if (req.path === '/' && req.method === 'GET') {
+    const isConfirmed = req.query.confirm === 'reset-database-trohub' || clientSecret === seedSecret;
+    if (!isConfirmed) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cảnh báo an toàn: Thao tác này sẽ XÓA SẠCH toàn bộ cơ sở dữ liệu! Hãy truyền thêm ?confirm=reset-database-trohub để xác nhận.'
+      });
+    }
+  }
+
+  next();
+});
+
 router.get('/', async (req, res) => {
   try {
     await Account.deleteMany({});

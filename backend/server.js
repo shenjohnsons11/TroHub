@@ -31,7 +31,25 @@ const path = require('path');
 const app = express();
 
 // 2. Middleware
-app.use(cors({ origin: '*', credentials: true }));
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+    : ['http://localhost:3000', 'http://localhost:5000', 'http://127.0.0.1:3000', 'http://localhost:8081'];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Cho phép mobile app, curl, script hoặc các request không có header origin
+        if (!origin) return callback(null, true);
+        if (process.env.NODE_ENV !== 'production') return callback(null, true);
+
+        // Chấp nhận domain chỉ định hoặc bất kỳ subdomain nào của vercel.app
+        const isAllowed = allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin);
+        if (isAllowed) {
+            return callback(null, true);
+        }
+        return callback(new Error('Chặn bởi chính sách bảo mật CORS: Origin không được ủy quyền.'));
+    },
+    credentials: true
+}));
 app.use(express.json({ limit: '50mb' })); // Giúp API đọc được dữ liệu JSON gửi lên, tăng giới hạn lên 50mb
 app.use('/public/contracts', (_req, res) => res.status(404).json({ success: false, message: 'Tài liệu hợp đồng không được phát hành công khai.' }));
 app.use('/public', express.static(path.join(__dirname, 'public')));

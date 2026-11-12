@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.local
+.env.*.local
+*.log
+storage/contracts/*.pdf
+storage/contracts/*.docx
+public/contracts/*
+!storage/contracts/.gitkeep
+!public/contracts/.gitkeep
+.DS_Store
+

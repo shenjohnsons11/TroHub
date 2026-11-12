@@ -239,6 +239,11 @@ exports.getHomeSummary = async (req, res) => {
     try {
         const { tenantId } = req.params;
 
+        // Kiểm tra quyền hạn: Chỉ Admin hoặc chính khách thuê đó mới được xem
+        if (req.auth && req.auth.role !== 1 && String(req.auth.id) !== String(tenantId)) {
+            return res.status(403).json({ success: false, code: 'FORBIDDEN', message: "Bạn không có quyền truy cập dữ liệu của người thuê này!" });
+        }
+
         const tenant = await Account.findById(tenantId);
         if (!tenant || tenant.role !== 2) {
             return res.status(404).json({ success: false, message: "Không tìm thấy người thuê!" });

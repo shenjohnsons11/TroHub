@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const tenantController = require('../controllers/tenantController');
 const { requireAdmin } = require('../middleware/requireAdmin');
+const { requireAuth } = require('../middleware/requireAuth');
 
 // Web
 router.post('/check-duplicate', requireAdmin, tenantController.checkDuplicate);
@@ -13,6 +14,6 @@ router.put('/:id', requireAdmin, tenantController.updateTenant);
 router.put('/:id/terminate', requireAdmin, tenantController.terminateTenant);
 
 // Mobile
-router.get('/home-summary/:tenantId', tenantController.getHomeSummary);
+router.get('/home-summary/:tenantId', requireAuth, tenantController.getHomeSummary);
 
 module.exports = router;

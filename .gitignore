@@ -1,0 +1,41 @@
+# Node dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment variables & secrets (CRITICAL FOR SECURITY)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+
+# Next.js webadmin build & cache
+webadmin/.next/
+webadmin/out/
+webadmin/build/
+
+# Expo / React Native
+.expo/
+dist/
+web-build/
+
+# Storage & generated media
+backend/storage/contracts/*.pdf
+backend/storage/contracts/*.docx
+backend/public/contracts/*
+!backend/storage/contracts/.gitkeep
+!backend/public/contracts/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+server.log
+
+# System files
+.DS_Store
+Thumbs.db
+
